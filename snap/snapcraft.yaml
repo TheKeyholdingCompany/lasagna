@@ -1,0 +1,22 @@
+name: lasagna
+base: core20
+version: git
+summary: A CLI tool to build your lambda layer zip for you.
+description: Collects your project dependencies by looking into requirements.txt/package.json and builds a zip file that can be used as a lambda layer.
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+apps:
+  lasagna:
+    command: bin/lasagna
+
+parts:
+  lasagna:
+    source: https://github.com/TheKeyholdingCompany/lasagna/
+    source-type: git
+    plugin: go
+    override-build: |
+      VERSION="$(git describe --tags) $(go env GOOS)/$(go env GOARCH)"
+      go install --ldflags="-X \"main.VERSION=${VERSION}\" -linkmode=external" ./...
+

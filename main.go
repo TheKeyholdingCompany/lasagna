@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/docopt/docopt.go"
-	"lasagna/config"
 	"lasagna/dependencies"
 	"lasagna/helpers"
 	"lasagna/io"
@@ -11,8 +10,10 @@ import (
 	"os"
 )
 
+var VERSION = "development"
+
 func main() {
-	usage := "lasagna (version: " + config.VERSION + `)
+	usage := "lasagna (version: " + VERSION + `)
 
 Usage:
   lasagna [options]
@@ -30,7 +31,7 @@ Examples:
 	arguments, _ := docopt.ParseDoc(usage)
 	version, _ := arguments.Bool("--version")
 	if version {
-		fmt.Println("lasagna " + config.VERSION)
+		fmt.Println("lasagna " + VERSION)
 		os.Exit(0)
 	}
 	output, _ := arguments.String("--output")
