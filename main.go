@@ -8,6 +8,7 @@ import (
 	"lasagna/io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var VERSION = "development"
@@ -36,15 +37,16 @@ Examples:
 	}
 	output, _ := arguments.String("--output")
 	useSystemZip, _ := arguments.Bool("--nix-zip")
+	absoluteOutput, _ := filepath.Abs(output)
 
 	cwd, err := os.Getwd()
 	helpers.CheckError(err)
 	file := io.FindDependencies(cwd)
 
 	log.Println("Fetching dependencies...")
-	dependencies.FetchDependencies(file, output+".tmp")
+	dependencies.FetchDependencies(file, absoluteOutput+".tmp")
 	log.Println("Zipping dependencies...")
-	io.Zip(output+".tmp", output, useSystemZip)
-	os.RemoveAll(output + ".tmp")
-	log.Println("Done")
+	io.Zip(output+".tmp", absoluteOutput, useSystemZip)
+	os.RemoveAll(absoluteOutput + ".tmp")
+	log.Println("Done: " + absoluteOutput + " (" + output + ")")
 }
