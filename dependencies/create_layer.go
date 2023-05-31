@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"lasagna/helpers"
+	lio "lasagna/io"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,7 +12,10 @@ import (
 
 func doInstall(dependencyFile string, directory string) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
-		return exec.Command("pip3", "install", "-r", "requirements.txt", "-t", directory+"/python").Output()
+		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", []string{"botocore", "boto3"})
+		defer os.Remove(dependencyFile + ".tmp")
+		helpers.CheckError(err)
+		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python").Output()
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
 		source, err := os.Open(dependencyFile)
