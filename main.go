@@ -22,9 +22,10 @@ Usage:
   lasagna --help
 
 Options:
-  -h --help           Show this Help.
-  -o --output=<path>  Path to output file [default: ./layer.zip].
-  -z --nix-zip        Use zip, rather than letting lasagna do it (this is faster).
+  -h --help                 Show this Help.
+  -o --output=<path>        Path to output file [default: ./layer.zip].
+  -z --nix-zip              Use zip, rather than letting lasagna do it (this is faster).
+  -p --platform=<platform>  Platform to use (Defaults to 'manylinux1_x86_64' for python).
 
 Examples:
   lasagna --output=./my-layer.zip`
@@ -37,6 +38,7 @@ Examples:
 	}
 	output, _ := arguments.String("--output")
 	useSystemZip, _ := arguments.Bool("--nix-zip")
+	platform, _ := arguments.String("--platform")
 	absoluteOutput, _ := filepath.Abs(output)
 
 	cwd, err := os.Getwd()
@@ -44,7 +46,7 @@ Examples:
 	file := io.FindDependencies(cwd)
 
 	log.Println("Fetching dependencies...")
-	dependencies.FetchDependencies(file, absoluteOutput+".tmp")
+	dependencies.FetchDependencies(file, absoluteOutput+".tmp", platform)
 	log.Println("Zipping dependencies...")
 	io.Zip(output+".tmp", absoluteOutput, useSystemZip)
 	os.RemoveAll(absoluteOutput + ".tmp")

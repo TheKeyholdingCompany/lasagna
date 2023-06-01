@@ -10,12 +10,16 @@ import (
 	"strings"
 )
 
-func doInstall(dependencyFile string, directory string) ([]byte, error) {
+func doInstall(dependencyFile string, directory string, platform string) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
+		_platform := platform
+		if platform == "" {
+			_platform = "manylinux1_x86_64"
+		}
 		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", []string{"botocore", "boto3"})
 		defer os.Remove(dependencyFile + ".tmp")
 		helpers.CheckError(err)
-		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python").Output()
+		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python", "--platform", _platform).Output()
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
 		source, err := os.Open(dependencyFile)
@@ -37,8 +41,8 @@ func doInstall(dependencyFile string, directory string) ([]byte, error) {
 	return nil, errors.New("unknown project type")
 }
 
-func FetchDependencies(dependencyFile string, directory string) {
-	_, err := doInstall(dependencyFile, directory)
+func FetchDependencies(dependencyFile string, directory string, platform string) {
+	_, err := doInstall(dependencyFile, directory, platform)
 	//log.Println(string(output))
 	helpers.CheckError(err)
 }
