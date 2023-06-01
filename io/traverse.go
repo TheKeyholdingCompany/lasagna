@@ -38,7 +38,7 @@ func FindFile(dirPath string, pattern string, maxDepth int) (string, error) {
 
 func FindDependencies(path string) string {
 	log.Printf("Finding dependencies in %s\n", path)
-	files, err := FindFile(path, "(requirements.txt|package.json)", 1)
+	file, err := FindFile(path, "(requirements.txt|package.json)", 1)
 	helpers.CheckError(err)
-	return files
+	return file
 }

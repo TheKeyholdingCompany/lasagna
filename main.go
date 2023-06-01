@@ -22,10 +22,10 @@ Usage:
   lasagna --help
 
 Options:
-  -h --help                 Show this Help.
-  -o --output=<path>        Path to output file [default: ./layer.zip].
-  -z --nix-zip              Use zip, rather than letting lasagna do it (this is faster).
-  -p --platform=<platform>  Platform to use (Defaults to 'manylinux1_x86_64' for python).
+  -h --help           Show this Help.
+  -o --output=<path>  Path to output file [default: ./layer.zip].
+  -z --nix-zip        Use zip, rather than letting lasagna do it (this is faster).
+  -v --verbose        Extra output for debugging.
 
 Examples:
   lasagna --output=./my-layer.zip`
@@ -38,15 +38,17 @@ Examples:
 	}
 	output, _ := arguments.String("--output")
 	useSystemZip, _ := arguments.Bool("--nix-zip")
-	platform, _ := arguments.String("--platform")
+	isVerbose, _ := arguments.Bool("--verbose")
 	absoluteOutput, _ := filepath.Abs(output)
 
 	cwd, err := os.Getwd()
 	helpers.CheckError(err)
 	file := io.FindDependencies(cwd)
-
+	if isVerbose {
+		log.Println("Found dependencies file: " + file)
+	}
 	log.Println("Fetching dependencies...")
-	dependencies.FetchDependencies(file, absoluteOutput+".tmp", platform)
+	dependencies.FetchDependencies(file, absoluteOutput+".tmp", isVerbose)
 	log.Println("Zipping dependencies...")
 	io.Zip(output+".tmp", absoluteOutput, useSystemZip)
 	os.RemoveAll(absoluteOutput + ".tmp")

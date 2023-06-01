@@ -5,21 +5,18 @@ import (
 	"io"
 	"lasagna/helpers"
 	lio "lasagna/io"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
 )
 
-func doInstall(dependencyFile string, directory string, platform string) ([]byte, error) {
+func doInstall(dependencyFile string, directory string) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
-		_platform := platform
-		if platform == "" {
-			_platform = "manylinux1_x86_64"
-		}
 		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", []string{"botocore", "boto3"})
 		defer os.Remove(dependencyFile + ".tmp")
 		helpers.CheckError(err)
-		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python", "--platform", _platform).Output()
+		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python").CombinedOutput()
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
 		source, err := os.Open(dependencyFile)
@@ -36,13 +33,15 @@ func doInstall(dependencyFile string, directory string, platform string) ([]byte
 		_, err = io.Copy(destination, source)
 		helpers.CheckError(err)
 
-		return exec.Command("npm", "--prefix", directory+"/nodejs", "install").Output()
+		return exec.Command("npm", "--prefix", directory+"/nodejs", "install").CombinedOutput()
 	}
 	return nil, errors.New("unknown project type")
 }
 
-func FetchDependencies(dependencyFile string, directory string, platform string) {
-	_, err := doInstall(dependencyFile, directory, platform)
-	//log.Println(string(output))
+func FetchDependencies(dependencyFile string, directory string, isVerbose bool) {
+	output, err := doInstall(dependencyFile, directory)
+	if isVerbose {
+		log.Println(string(output))
+	}
 	helpers.CheckError(err)
 }
