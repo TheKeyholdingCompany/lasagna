@@ -16,7 +16,7 @@ func doInstall(dependencyFile string, directory string) ([]byte, error) {
 		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", []string{"botocore", "boto3"})
 		defer os.Remove(dependencyFile + ".tmp")
 		helpers.CheckError(err)
-		return exec.Command("pip3", "install", "--only-binary=:all:", "--platform", "manylinux2014_x86_64", "-r", dependencyFile+".tmp", "-t", directory+"/python").CombinedOutput()
+		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python").CombinedOutput()
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
 		source, err := os.Open(dependencyFile)
