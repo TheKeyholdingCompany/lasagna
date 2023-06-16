@@ -11,12 +11,28 @@ import (
 	"strings"
 )
 
-func doInstall(dependencyFile string, directory string) ([]byte, error) {
+func doInstall(dependencyFile string, directory string, excludes []string) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
-		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", []string{"botocore", "boto3"})
-		defer os.Remove(dependencyFile + ".tmp")
+		defaultExcludes := []string{"botocore", "boto3"}
+		newRequirementsFile := dependencyFile + ".tmp"
+		err := lio.CopyFileExcludingLines(dependencyFile, newRequirementsFile, append(defaultExcludes, excludes...))
+		defer os.Remove(newRequirementsFile)
 		helpers.CheckError(err)
-		return exec.Command("pip3", "install", "-r", dependencyFile+".tmp", "-t", directory+"/python").CombinedOutput()
+		result, installErr := exec.Command("pip3", "install", "-r", newRequirementsFile, "-t", directory+"/python").CombinedOutput()
+		filePath, fileErr := lio.FindFile(directory+"/python", "cryptography", 1)
+		if filePath != "" && fileErr == nil {
+			exec.Command("pip3",
+				"install",
+				"--platform", "manylinux2014_x86_64",
+				"-t", directory+"/python",
+				"--implementation", "cp",
+				"--python", "3.10",
+				"--only-binary=:all:",
+				"--upgrade",
+				"cryptography==40.0.2").CombinedOutput()
+
+		}
+		return result, installErr
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
 		source, err := os.Open(dependencyFile)
@@ -38,8 +54,8 @@ func doInstall(dependencyFile string, directory string) ([]byte, error) {
 	return nil, errors.New("unknown project type")
 }
 
-func FetchDependencies(dependencyFile string, directory string, isVerbose bool) {
-	output, err := doInstall(dependencyFile, directory)
+func FetchDependencies(dependencyFile string, directory string, excludes []string, isVerbose bool) {
+	output, err := doInstall(dependencyFile, directory, excludes)
 	if isVerbose {
 		log.Println(string(output))
 	}
