@@ -19,8 +19,9 @@ func doInstall(dependencyFile string, directory string, excludes []string) ([]by
 		defer os.Remove(newRequirementsFile)
 		helpers.CheckError(err)
 		result, installErr := exec.Command("pip3", "install", "-r", newRequirementsFile, "-t", directory+"/python").CombinedOutput()
-		filePath, fileErr := lio.FindFile(directory+"/python", "cryptography", 1)
+		filePath, fileErr := lio.FindPath(directory+"/python", "cryptography", 1, true)
 		if filePath != "" && fileErr == nil {
+			log.Println("Re-fetching cryptography for manylinux2014_x86_64")
 			cryptoInstallResult, cryptoInstallErr := exec.Command("pip3",
 				"install",
 				"--platform", "manylinux2014_x86_64",

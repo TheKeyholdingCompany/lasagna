@@ -16,12 +16,16 @@ func countDepth(baseDir string, currentPath string) int {
 }
 
 func FindFile(dirPath string, pattern string, maxDepth int) (string, error) {
+	return FindPath(dirPath, pattern, maxDepth, false)
+}
+
+func FindPath(dirPath string, pattern string, maxDepth int, includeDirs bool) (string, error) {
 	reg, e := regexp.Compile(pattern)
 	helpers.CheckError(e)
 	var filePath string
 	err := filepath.WalkDir(dirPath, func(path string, dir fs.DirEntry, err error) error {
 		helpers.CheckError(err)
-		if dir.IsDir() || countDepth(dirPath, path) > maxDepth {
+		if (!includeDirs && dir.IsDir()) || countDepth(dirPath, path) > maxDepth {
 			return nil
 		}
 		if reg.MatchString(path) {
