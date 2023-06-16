@@ -2,6 +2,7 @@ package io
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"strings"
 )
@@ -13,6 +14,29 @@ func lineHasContainsWords(line string, words []string) bool {
 		}
 	}
 	return false
+}
+
+func GrepFile(sourcePath string, token string) (string, error) {
+	sourceFile, err := os.Open(sourcePath)
+	if err != nil {
+		return "", err
+	}
+	defer sourceFile.Close()
+
+	scanner := bufio.NewScanner(sourceFile)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, token) {
+			return line, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	return "", errors.New("token not found")
 }
 
 func CopyFileExcludingLines(sourcePath string, targetPath string, excludes []string) error {

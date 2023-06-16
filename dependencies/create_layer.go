@@ -11,29 +11,45 @@ import (
 	"strings"
 )
 
-func doInstall(dependencyFile string, directory string, excludes []string) ([]byte, error) {
+func doInstall(dependencyFile string, directory string, excludes []string, isVerbose bool) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
+		if isVerbose {
+			log.Printf("Installing dependencies from %s\n", dependencyFile)
+		}
+
 		defaultExcludes := []string{"botocore", "boto3"}
 		newRequirementsFile := dependencyFile + ".tmp"
 		err := lio.CopyFileExcludingLines(dependencyFile, newRequirementsFile, append(defaultExcludes, excludes...))
 		defer os.Remove(newRequirementsFile)
 		helpers.CheckError(err)
-		result, installErr := exec.Command("pip3", "install", "-r", newRequirementsFile, "-t", directory+"/python").CombinedOutput()
+		result, installErr := exec.Command("pip3",
+			"install",
+			"-r", newRequirementsFile,
+			"-t", directory+"/python").CombinedOutput()
+
+		if isVerbose {
+			log.Println(string(result))
+		}
+
 		filePath, fileErr := lio.FindPath(directory+"/python", "cryptography", 1, true)
 		if filePath != "" && fileErr == nil {
-			log.Println("Re-fetching cryptography for manylinux2014_x86_64")
+			if isVerbose {
+				log.Println("Re-fetching cryptography for manylinux2014_x86_64")
+			}
 			cryptoInstallResult, cryptoInstallErr := exec.Command("pip3",
 				"install",
 				"--platform", "manylinux2014_x86_64",
 				"-t", directory+"/python",
 				"--implementation", "cp",
-				"--python", "3.10",
 				"--only-binary=:all:",
 				"--upgrade",
 				"cryptography==40.0.2").CombinedOutput()
-			log.Println(string(cryptoInstallResult))
+			if isVerbose {
+				log.Println(string(cryptoInstallResult))
+			}
 			helpers.CheckError(cryptoInstallErr)
 		}
+
 		return result, installErr
 	}
 	if strings.HasSuffix(dependencyFile, "package.json") {
@@ -57,9 +73,6 @@ func doInstall(dependencyFile string, directory string, excludes []string) ([]by
 }
 
 func FetchDependencies(dependencyFile string, directory string, excludes []string, isVerbose bool) {
-	output, err := doInstall(dependencyFile, directory, excludes)
-	if isVerbose {
-		log.Println(string(output))
-	}
+	_, err := doInstall(dependencyFile, directory, excludes, isVerbose)
 	helpers.CheckError(err)
 }
