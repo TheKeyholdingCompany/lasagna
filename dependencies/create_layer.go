@@ -21,7 +21,7 @@ func doInstall(dependencyFile string, directory string, excludes []string) ([]by
 		result, installErr := exec.Command("pip3", "install", "-r", newRequirementsFile, "-t", directory+"/python").CombinedOutput()
 		filePath, fileErr := lio.FindFile(directory+"/python", "cryptography", 1)
 		if filePath != "" && fileErr == nil {
-			exec.Command("pip3",
+			cryptoInstallResult, cryptoInstallErr := exec.Command("pip3",
 				"install",
 				"--platform", "manylinux2014_x86_64",
 				"-t", directory+"/python",
@@ -30,7 +30,8 @@ func doInstall(dependencyFile string, directory string, excludes []string) ([]by
 				"--only-binary=:all:",
 				"--upgrade",
 				"cryptography==40.0.2").CombinedOutput()
-
+			log.Println(string(cryptoInstallResult))
+			helpers.CheckError(cryptoInstallErr)
 		}
 		return result, installErr
 	}
