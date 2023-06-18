@@ -14,23 +14,25 @@ import (
 func doInstall(dependencyFile string, directory string, excludes []string, isVerbose bool) ([]byte, error) {
 	if strings.HasSuffix(dependencyFile, "requirements.txt") {
 		if isVerbose {
+			ddd, _ := exec.Command("which",
+				"pip3").CombinedOutput()
+			log.Printf("Pip3 location: %s\n", string(ddd))
 			log.Printf("Installing dependencies from %s\n", dependencyFile)
 		}
 
 		defaultExcludes := []string{"botocore", "boto3"}
-		newRequirementsFile := dependencyFile + ".tmp"
-		err := lio.CopyFileExcludingLines(dependencyFile, newRequirementsFile, append(defaultExcludes, excludes...))
-		defer os.Remove(newRequirementsFile)
+		err := lio.CopyFileExcludingLines(dependencyFile, dependencyFile+".tmp", append(defaultExcludes, excludes...))
+		defer os.Remove(dependencyFile + ".tmp")
 		helpers.CheckError(err)
 		result, installErr := exec.Command("pip3",
 			"install",
-			"-r", newRequirementsFile,
+			"-r", dependencyFile+".tmp",
 			"-t", directory+"/python").CombinedOutput()
 
 		if isVerbose {
 			log.Println(string(result))
+			log.Println("Checking for cryptography...")
 		}
-
 		filePath, fileErr := lio.FindPath(directory+"/python", "cryptography", 1, true)
 		if filePath != "" && fileErr == nil {
 			if isVerbose {
@@ -48,6 +50,10 @@ func doInstall(dependencyFile string, directory string, excludes []string, isVer
 				log.Println(string(cryptoInstallResult))
 			}
 			helpers.CheckError(cryptoInstallErr)
+		}
+
+		if isVerbose {
+			log.Println("Finished fetching dependencies")
 		}
 
 		return result, installErr
