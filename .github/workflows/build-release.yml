@@ -14,9 +14,16 @@ jobs:
         with:
           repository: TheKeyholdingCompany/lasagna
 
-      - name: Up the version
+      - name: Up the version (automatically)
+        if: "!contains(github.event.head_commit.message, 'VERSION_TAG=')"
         run: |
           VERSION=$(echo "${{ steps.version.outputs.tag }}" | awk -F'.' '{ print $1"."$2"."$3+1 }')
+          echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Fetch version from commit message
+        if: "contains(github.event.head_commit.message, 'VERSION_TAG=')"
+        run: |
+          VERSION=$(echo "${{ github.event.head_commit.message }}" | sed -rn 's/.*VERSION_TAG=([0-9]+\.[0-9]+\.[0-9]+).*/\1/p')
           echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Create tag

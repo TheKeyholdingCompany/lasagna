@@ -44,7 +44,7 @@ Examples:
 	useSystemZip, _ := arguments.Bool("--nix-zip")
 	isVerbose, _ := arguments.Bool("--verbose")
 	absoluteOutput, _ := filepath.Abs(output)
-	excludes := strings.Split(exclude, ",")
+	excludes := helpers.RemoveElements(strings.Split(exclude, ","), "")
 
 	cwd, err := os.Getwd()
 	helpers.CheckError(err)
