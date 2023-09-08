@@ -32,4 +32,4 @@ snap install lasagna
 ```
 
 ## Other
-Download the binary from the [releases page](
+Download the binary from [releases](https://github.com/TheKeyholdingCompany/lasagna/releases).
