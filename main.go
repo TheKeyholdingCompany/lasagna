@@ -6,6 +6,7 @@ import (
 	"lasagna/dependencies"
 	"lasagna/helpers"
 	"lasagna/io"
+	"lasagna/shell"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,6 +29,7 @@ Options:
   -e --exclude=<lib>      A library or a comma-separated list of libraries to exclude.
   -z --nix-zip            Use zip, rather than letting lasagna do it (this is faster).
   -v --verbose            Extra output for debugging.
+  -c --command            Command to run before packaging the layer.
   -r --replace=<library>  Comma-separated list of libraries with a specific version and platform. These will replace the default libraries.
 
 Examples:
@@ -46,6 +48,7 @@ Examples:
 	useSystemZip, _ := arguments.Bool("--nix-zip")
 	isVerbose, _ := arguments.Bool("--verbose")
 	replace, _ := arguments.String("--replace")
+	command, _ := arguments.String("--command")
 	absoluteOutput, _ := filepath.Abs(output)
 	excludes := helpers.RemoveElements(strings.Split(exclude, ","), "")
 
@@ -58,6 +61,9 @@ Examples:
 	}
 	log.Println("Fetching dependencies...")
 	dependencies.FetchDependencies(file, absoluteOutput+".tmp", libraryReplacements, excludes, isVerbose)
+	if command != "" {
+		shell.Run(command)
+	}
 	log.Println("Zipping dependencies...")
 	io.Zip(output+".tmp", absoluteOutput, useSystemZip)
 	os.RemoveAll(absoluteOutput + ".tmp")
