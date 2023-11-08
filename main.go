@@ -29,7 +29,7 @@ Options:
   -e --exclude=<lib>      A library or a comma-separated list of libraries to exclude.
   -z --nix-zip            Use zip, rather than letting lasagna do it (this is faster).
   -v --verbose            Extra output for debugging.
-  -c --command            Command to run before packaging the layer.
+  -c --command=<command>  Command to run before packaging the layer.
   -r --replace=<library>  Comma-separated list of libraries with a specific version and platform. These will replace the default libraries.
 
 Examples:
