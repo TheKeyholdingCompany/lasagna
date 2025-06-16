@@ -60,6 +60,11 @@ jobs:
         with:
           repository: TheKeyholdingCompany/lasagna
 
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.4'
+
       - name: Build
         run: ./build.sh --windows --version=${{ steps.version.outputs.tag }}
 
@@ -92,7 +97,7 @@ jobs:
             echo "OS_NAME=linux" >> $GITHUB_ENV
           elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             echo "OS_NAME=windows" >> $GITHUB_ENV
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
             echo "OS_NAME=darwin" >> $GITHUB_ENV
           fi
 
@@ -101,6 +106,11 @@ jobs:
         id: version
         with:
           repository: TheKeyholdingCompany/lasagna
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.4'
 
       - name: Build
         run: ./build.sh --default --version=${{ steps.version.outputs.tag }} --go-arch=${{ matrix.arch }}
