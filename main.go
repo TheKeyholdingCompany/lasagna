@@ -31,9 +31,11 @@ Options:
   -v --verbose            Extra output for debugging.
   -c --command=<command>  Command to run before packaging the layer.
   -r --replace=<library>  Comma-separated list of libraries with a specific version and platform. These will replace the default libraries.
+  -h --host=<host>        The package repository host URL (include username and password if needed).
 
 Examples:
   lasagna --output=./my-layer.zip
+  lasagna --output=./my-layer.zip -z --host=https://user:password@my.pip.host.com/respository/my-pypi-all/simple
   lasagna --output=./my-layer.zip -z --exclude=lib1,lib2
   lasagna --output=./my-layer.zip -z --replace=lib1:1.0.0:platform,lib2:2.0.0:platform`
 
@@ -47,8 +49,13 @@ Examples:
 	exclude, _ := arguments.String("--exclude")
 	useSystemZip, _ := arguments.Bool("--nix-zip")
 	isVerbose, _ := arguments.Bool("--verbose")
-	replace, _ := arguments.String("--replace")
 	command, _ := arguments.String("--command")
+	replace, _ := arguments.String("--replace")
+	host, argHostErr := arguments.String("--host")
+	if argHostErr != nil {
+		log.Println("Unable to parse host argument, using default host.")
+		host = ""
+	}
 	absoluteOutput, _ := filepath.Abs(output)
 	excludes := helpers.RemoveElements(strings.Split(exclude, ","), "")
 
@@ -60,7 +67,7 @@ Examples:
 		log.Println("Found dependencies file: " + file)
 	}
 	log.Println("Fetching dependencies...")
-	dependencies.FetchDependencies(file, absoluteOutput+".tmp", libraryReplacements, excludes, isVerbose)
+	dependencies.FetchDependencies(file, absoluteOutput+".tmp", libraryReplacements, excludes, host, isVerbose)
 	if command != "" {
 		shell.Run(command)
 	}
