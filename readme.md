@@ -41,3 +41,10 @@ snap install lasagna
 
 ## Other
 Download the binary from [releases](https://github.com/TheKeyholdingCompany/lasagna/releases).
+E.g. with `wget`:
+```shell
+wget https://github.com/TheKeyholdingCompany/lasagna/releases/download/0.2.6/linux-amd64.zip
+unzip linux-amd64.zip
+chmod +x lasagna
+mv lasagna /usr/local/bin/lasagna
+```

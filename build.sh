@@ -77,18 +77,28 @@ done
 
 if [[ "${DO_ALL}" == "true" ]]; then
   rm -rf ./dist
-  ./build.sh --windows --version=${VERSION}
-  ./build.sh --linux --version=${VERSION}
-  ./build.sh --macos --version=${VERSION}
-  ./build.sh --macos-m1 --version=${VERSION}
+  ./build.sh --windows --version=${VERSION} && \
+    ./build.sh --linux --version=${VERSION} && \
+    ./build.sh --macos --version=${VERSION} && \
+    ./build.sh --macos-m1 --version=${VERSION}
 else
   mkdir -p dist/${GOOS}-${GOARCH}
   go build -o "${OUTPUT_DIR}/${EXECUTABLE_NAME}" --ldflags="-X \"main.VERSION=${VERSION} ${GOOS}/${GOARCH}\"" main.go
+  if [[ $? -ne 0 ]]; then
+    echo "Build failed!"
+    exit 1
+  fi
 
   if [[ "${BUILD_ZIP}" == "true" ]]; then
     pushd "${OUTPUT_DIR}/" > /dev/null 2>&1
-    cp ${DIR}/config.template.yml config.yml
+#    cp ${DIR}/config.template.yml config.yml
     zip -r "../${GOOS}-${GOARCH}.zip" ./* > /dev/null
+    if [[ $? -ne 0 ]]; then
+      echo "Packaging failed!"
+      exit 1
+    fi
     popd > /dev/null 2>&1
   fi
 fi
+
+echo "Build successful!"
