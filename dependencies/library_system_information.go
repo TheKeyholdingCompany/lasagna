@@ -18,7 +18,11 @@ func CreateLibrarySystemInformation(colonSeparatedAttributeList string) LibraryS
 }
 
 func ParseLibraryReplacements(unparsedReplacements string) []LibrarySystemInformation {
-	libraryInformationList := []LibrarySystemInformation{}
+	if unparsedReplacements == "" {
+		return []LibrarySystemInformation{}
+	}
+
+	var libraryInformationList []LibrarySystemInformation
 
 	libraryInformationStringList := strings.Split(unparsedReplacements, ",")
 	for _, libraryInformation := range libraryInformationStringList {

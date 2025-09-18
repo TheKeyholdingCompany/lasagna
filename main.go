@@ -53,7 +53,7 @@ Examples:
 	replace, _ := arguments.String("--replace")
 	host, argHostErr := arguments.String("--host")
 	if argHostErr != nil {
-		log.Println("Unable to parse host argument, using default host.")
+		log.Println("Using default host")
 		host = ""
 	}
 	absoluteOutput, _ := filepath.Abs(output)
