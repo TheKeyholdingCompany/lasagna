@@ -1,7 +1,9 @@
-<div align="center"><img src="./icon.svg" /></div>
+<div align="center"><img width=150 src="./docs/icon.svg" /></div>
 <h1 align="center">Lasagna</h1>
 
 A CLI tool to build your lambda layer zip for you.
+
+Supports `pip` and `npm` dependencies.
 
 # Usage
 ```
