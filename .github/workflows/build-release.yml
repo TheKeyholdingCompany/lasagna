@@ -30,7 +30,7 @@ jobs:
           echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Create tag
-        uses: actions/github-script@v5
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.git.createRef({
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Get version
         uses: oprypin/find-latest-tag@v1
@@ -64,7 +64,7 @@ jobs:
           repository: TheKeyholdingCompany/lasagna
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v7
         with:
           go-version: '1.24.4'
 
@@ -92,7 +92,7 @@ jobs:
         arch: [ amd64, arm64 ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Set OS name
         run: |
@@ -111,7 +111,7 @@ jobs:
           repository: TheKeyholdingCompany/lasagna
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v7
         with:
           go-version: '1.24.4'
 
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Get version
         uses: oprypin/find-latest-tag@v1
